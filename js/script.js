@@ -2,24 +2,25 @@
 (function () {
 
     var card = document.createElement('div');
-    card.setAttribute('class', 'card');
+    card.classList.add('card');
+
+    var card_tr = document.createElement('div');
+    card_tr.classList.add('card_tr');
 
     var img = document.createElement('img');
-    img.setAttribute('class', 'image');
+    img.classList.add('class', 'image');
 
 
     var word = document.createElement('p');
-    word.setAttribute('class', 'word');
+    word.classList.add('class', 'word');
 
     document.body.setAttribute('id', 'body');
 
     body.appendChild(card);
 
-
-
     function getSelectionText() {
-        var txt = window.getSelection().toString();
-        return txt;
+        return window.getSelection().toString();
+
     }
 
     window.addEventListener('mouseup', function () {
@@ -28,25 +29,21 @@
 
             card.style.left = event.clientX + 'px';
             card.style.top = event.clientY + 20 + 'px';
+            card.classList.add('show');
 
-            card.setAttribute('class', 'show card');
-
-
-            var link = 'http://dictionary.skyeng.ru/api/v2/search-word-translation?text=' + text;
-
-            //console.log(link);
+            var link = 'https://dictionary.skyeng.ru/api/v2/search-word-translation?text=' + text;
 
             var request = new XMLHttpRequest();
-            request.open('GET', link, false);
+            request.open('GET', link, true);
             request.send();
 
-            console.log(request);
-            console.log(request.status);
+            request.onreadystatechange = function () {
+                if (request.readyState != 4) return;
 
             var jsonRequest = request.response;
             jsonRequest = JSON.parse(jsonRequest);
-            if (request.status !== 200 || request.response == "[]"){
-                card.setAttribute('class', 'hide');
+            if (request.status !== 200 || request.response == "[]") {
+                card.classList.remove('show');
                 img.setAttribute('src', '');
             }
             else {
@@ -54,47 +51,44 @@
                 var imgsrc = 'http://' + jsonRequest[0].meanings[0].image_url;
 
                 img.setAttribute('src', imgsrc);
-                img.setAttribute('class', 'show image');
+                img.classList.add('show');
                 card.appendChild(img);
 
                 word.innerHTML = text;
                 card.appendChild(word);
+                card.appendChild(card_tr);
 
-                arrTranslations.forEach(function (item, i, arrTranslations) {
+                arrTranslations.forEach(function (item) {
                     var trans_i = document.createElement('p');
-                    trans_i.setAttribute('class', 'translation');
+                    trans_i.classList.add('translation');
                     trans_i.innerHTML = item.translation;
-                    card.appendChild(trans_i);
+                    card_tr.appendChild(trans_i);
                     trans_i.addEventListener('mouseover', function () {
-                        trans_i.setAttribute('class', 'translation bold');
+                        trans_i.classList.add('bold');
                         img.setAttribute('src', 'http://' + item.image_url);
                     });
                     trans_i.addEventListener('mouseout', function () {
-                        trans_i.setAttribute('class', 'translation');
+                        trans_i.classList.remove('bold');
 
                     });
 
                 });
 
             }
-
+        }
         }
         });
 
     window.addEventListener('mousedown', function () {
 
-        card.setAttribute('class', 'hide');
+        card.classList.remove('show');
+
         img.setAttribute('src', '');
-        trans_i = card.querySelectorAll('.translation');
-        trans_i.forEach(function (item, i, trans_i) {
-            card.removeChild(item);
+        var trans_i = card_tr.querySelectorAll('.translation');
+        trans_i.forEach(function (item) {
+            card_tr.removeChild(item);
         });
 
     });
-
-
-
-
-
 
 })();
